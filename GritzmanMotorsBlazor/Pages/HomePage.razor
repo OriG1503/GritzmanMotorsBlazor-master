@@ -1,0 +1,143 @@
+﻿@page "/HomePage/{userId:int}"
+@page "/HomePage"
+
+@inject NavigationManager nav
+@inject ApiService apiService
+
+    <style>
+        body {
+            background-color: #01052F;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #66CDAA;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .navigation-bar {
+            position: absolute;
+            top: 75px;
+        }
+
+        .background-image {
+            position: absolute;
+            margin: 318px 0 0 720px;
+            width: 230px;
+            height: 230px;
+        }
+
+        .person-info {
+            position: absolute;
+            top: 56px;
+            left: 353px;
+            display: flex;
+            flex-direction: column;
+            font-size: 24px;
+            color: #66CDAA;
+            font-weight: bold;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .logout-button {
+            margin-top: 200px;
+            width: 180px;
+            height:50px;
+            background-color: #66CDAA;
+            color: white;
+            font-size: 24px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .logout-button:hover {
+            background-color: #5cb85c;
+        }
+    </style>
+
+<body>
+    @if (loggedInPerson != null)
+    {
+        <div class="container">
+            <!-- Navigation Bar -->
+        <div class="navigation-bar">
+            <!-- Navigation Bar content goes here -->
+        </div>
+
+        <!-- Background Image -->
+        <img src="/Phone.png" alt="Background Image" class="background-image">
+
+        <!-- Display Person Information -->
+        <div class="person-info">
+            <label for="first-name">First Name: @loggedInPerson.FirstName</label>
+            <label for="last-name">Last Name: @loggedInPerson.LastName</label>
+            <label for="birth-date">Date Of Birth: @loggedInPerson.DateOfBirth.ToString()</label>
+        </div>
+
+        <button class="btn btn-outline-primary" @onclick=NavigateToOrdersPage>To Orders List</button>
+
+        <!-- Logout Button -->
+        <button class="logout-button" @onclick="Logout">Logout</button>
+
+            <Map width="500px" height="500px" Parameters="@parameters"></Map>
+            
+    </div>
+    }
+    <script>
+        function logout() {
+            // Handle logout functionality
+        }
+    </script>
+</body>
+
+
+@code {
+    [Parameter]
+    public int userId { get; set; }
+
+    private Person loggedInPerson;
+
+    protected async override Task OnInitializedAsync()
+    {
+        PersonList personLst = await apiService.GetPersonList();
+        if(userId!=0)
+            loggedInPerson = personLst.Find(x => x.Id == userId);
+
+    }
+
+    private void Logout()
+    {
+        nav.NavigateTo("/");
+    }
+
+    private void NavigateToOrdersPage()
+    {
+        if (loggedInPerson != null)
+            nav.NavigateTo($"/orderHistory/{loggedInPerson.Id}");
+    }
+    
+    Map.LoadParameters parameters = new Map.LoadParameters()
+    {
+        location = new Map.Location()
+        {
+            longitude = 34.81055554769117,
+            latitude = 31.97219289000539
+        },      
+        zoom_level = 18,
+    };
+
+    Map.MapOptions map_options = new Map.MapOptions()
+    {
+        interaction_options = new Map.InteractionOptions()
+        {
+            doubleClickZoom = false
+        }            
+    };
+
+}

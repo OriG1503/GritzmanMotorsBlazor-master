@@ -1,0 +1,136 @@
+﻿@page "/"
+
+@inject NavigationManager nav
+@inject ApiService apiService
+
+
+<PageTitle>Login</PageTitle>
+
+    <style>
+        body {
+            background-color: #01052F;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #66CDAA;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 50px;
+        }
+
+        .logo {
+            width: 200px;
+            height: 204px;
+            margin-top: -10px;
+            margin-bottom: -30px;
+        }
+
+        .form-container {
+            margin-top: 50px;
+        }
+
+        .login-btn {
+            width: 180px;
+            height: 50px;
+            font-size: 24px;
+            background-color: #66CDAA;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+            .login-btn:hover {
+                background-color: #5CB85C; /* Change color on hover */
+            }
+
+        .register-link {
+            font-size: 16px;
+            color: white;
+            margin-top: 10px;
+        }
+
+            .register-link a {
+                color: white;
+                text-decoration: none;
+            }
+
+                .register-link a:hover {
+                    text-decoration: underline;
+                }
+    </style>
+
+<body>
+    <div class="container">
+        <div class="logo">
+            <img class="logo" src="/Gritzman Motors (1).png" alt="Logo">
+        </div>
+        <div class="form-container">
+            <label for="username">Username:</label>
+            <div class="input-field">
+                <input type="text" id="username" name="username" @bind="username">
+            </div>
+            <label for="password">Password:</label>
+            <div class="input-field">
+                <input type="password" id="password" name="password" @bind="password">
+            </div>
+            <button class="login-btn" @onclick="Login">Login</button>
+            <div class="register-link">
+                <span>I don't have an account. </span>
+                <a href="RegisterPage">Register</a>
+            </div>
+        </div>
+        @if (isCorrect)
+        {
+            <div class="alert alert-danger" role="alert">
+                Invalid username or password. Please try again.
+            </div>
+        }
+    </div>
+</body>
+
+@code {
+    [Parameter]
+    public int userId{ get; set; }
+
+
+    public static Person loggedInPerson { get; set; }
+    private string username;
+    private string password;
+    private bool isCorrect;
+    private PersonList personList;
+
+    private async void Login()
+    {
+        Person person = await SpecificPerson(username, password);
+
+        if (person != null)
+        {
+            loggedInPerson = person;
+            // Successful login, navigate to HomePage.xaml with the person parameter
+            LoginPage.loggedInPerson = loggedInPerson;
+            nav.NavigateTo($"/HomePage/{person.Id}");
+        }
+        else
+            isCorrect = true;
+
+    }
+
+    public async Task<Person> SpecificPerson(string username, string password)
+    {
+        personList = await apiService.GetPersonList();
+        return personList.Find(x => x.FirstName == username && x.LastName == password);
+    }
+
+   
+
+    protected async override Task OnInitializedAsync()
+    {
+        isCorrect = false;
+        // personList lst = await
+    }
+}

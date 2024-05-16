@@ -1,0 +1,176 @@
+﻿@page "/RegisterPage"
+@inject ApiService apiService
+@inject NavigationManager nav
+@using System.Text.RegularExpressions;
+
+
+<PageTitle>Register</PageTitle>
+
+    <style>
+    body {
+        background-color: #01052F;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #66CDAA;
+    }
+       
+
+        .container {
+            background-color: transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo img {
+            width: 200px;
+            height: 204px;
+            margin-bottom: 50px;
+        }
+
+        .register-form {
+            background-color: #F2F2F2;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .input-field {
+            width: 300px;
+            height: 40px;
+            border-radius: 20px;
+            margin-bottom: 15px;
+            font-size: 20px;
+            padding: 5px;
+            border: none;
+        }
+
+        .register-button {
+            width: 180px;
+            height: 50px;
+            background-color: #66CDAA;
+            color: white;
+            font-size: 24px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+            .register-button:hover {
+                background-color: #5cb85c;
+            }
+
+        .login-link {
+            font-size: 16px;
+            color: black;
+            margin-top: 10px;
+        }
+
+            .login-link a {
+                color: black;
+                text-decoration: underline;
+            }
+
+                .login-link a:hover {
+                    color: #337ab7;
+                }
+    </style>
+
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="/Gritzman Motors (1).png" alt="Logo">
+        </div>
+        <div class="register-form">
+            <label for="first-name">First Name - Username:</label><br>
+            <input type="text" id="first-name" name="first-name" class="input-field" @bind="firstName"><br>
+            <label for="last-name">Last Name - Password:</label><br>
+            <input type="text" id="last-name" name="last-name" class="input-field" @bind="lastName"><br>
+            <label for="date-of-birth">Date Of Birth:</label><br>
+            <input type="datetime" id="date-of-birth" name="date-of-birth" class="input-field" @bind="dateOfBirth"><br>
+            <label for="phone-number">Phone Number:</label><br>
+            <input type="tel" id="phone-number" name="phone-number" class="input-field" @bind="phoneNumber"><br>
+            <button type="button" class="register-button" @onclick="RegisterClick">Register</button><br>
+            <p class="login-link">I have an account. <a href="/">Login now</a>.</p>
+        </div>
+        @if(isCorrect)
+        {
+                <div class="alert alert-danger" role="alert">
+                First letter in first and last name should be capital, and it should be between 3 - 10 letters.
+                Age should be at least 17 years.
+                Phone number should be longer than 10 digits and start with the digit 0.
+                </div>
+        }
+    </div>
+</body>
+
+@code {
+
+    private string firstName;
+    private string lastName;
+    private DateOnly dateOfBirth;
+    private string phoneNumber;
+    private bool isCorrect;
+    private Regex nameRegex;
+    private Regex phoneNumberRegex;
+
+    private async void RegisterClick()
+    {
+        // Gather user input (you should validate and sanitize the input)
+        Customer customer = new Customer
+        {
+            FirstName = firstName,
+            LastName = lastName,
+            DateOfBirth = dateOfBirth,
+            PhoneNumber = phoneNumber
+        };
+
+        if (!IsValidName(firstName))
+        {
+            isCorrect = true;
+            return;
+        }
+
+        if (!IsValidName(lastName))
+        {
+            isCorrect = true;
+            return;
+        }
+        //הבדיקה של הגיל לא עובדת כאן
+        DateOnly currentDate =  DateOnly.FromDateTime(DateTime.Parse(DateTime.Now.ToString()));
+        DateOnly minDateOfBirth = currentDate.AddYears(-17);
+        if (dateOfBirth == null || dateOfBirth > minDateOfBirth)
+        {
+            isCorrect = true;
+            return;
+        }
+
+        if (!phoneNumberRegex.IsMatch(phoneNumber))
+        {
+            isCorrect = true;
+            return;
+        }
+
+        int registrationResult = await apiService.InsertCustomer(customer);
+
+        if (registrationResult == 1)
+            nav.NavigateTo("/");
+        else
+            isCorrect = true;
+        
+
+    }
+
+
+    private bool IsValidName(string name)
+    {
+        return nameRegex.IsMatch(name);
+    }
+
+    protected override void OnInitialized()
+    {
+        nameRegex = new Regex(@"^[A-Z][a-z]{2,9}$");
+        phoneNumberRegex = new Regex(@"^0[0-9]{9}$");
+        isCorrect = false;
+    }
+}

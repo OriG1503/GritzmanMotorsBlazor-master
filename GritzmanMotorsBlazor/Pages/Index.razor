@@ -1,0 +1,14 @@
+﻿@page "/index"
+@inject NavigationManager nav
+
+<PageTitle>Index</PageTitle>
+
+<h1>Hello, world!</h1>
+<button @onclick="RedirectToLogin">Hello</button>
+
+@code{
+    private void RedirectToLogin()
+    {
+        nav.NavigateTo("/LoginPage");
+    }
+}

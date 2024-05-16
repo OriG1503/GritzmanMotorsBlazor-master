@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="wwwroot\Gritzman Motors %281%29.png" />
+    <Content Remove="wwwroot\Phone.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LeafletForBlazor" Version="2.0.4.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="ApiService">
+      <HintPath>..\..\GritzmanMotorsVS\ApiService\bin\Debug\net7.0\ApiService.dll</HintPath>
+    </Reference>
+    <Reference Include="Model">
+      <HintPath>..\..\GritzmanMotorsVS\ApiService\bin\x64\Debug\net7.0\Model.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="wwwroot\Gritzman Motors (1).png" />
+    <Resource Include="wwwroot\Phone.png" />
+  </ItemGroup>
+
+</Project>
